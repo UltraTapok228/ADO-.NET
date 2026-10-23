@@ -1,0 +1,295 @@
+IF DB_ID(N'OrderProcessing') IS NULL
+    CREATE DATABASE OrderProcessing;
+GO
+
+USE OrderProcessing;
+GO
+
+IF SCHEMA_ID(N'app')      IS NULL EXEC(N'CREATE SCHEMA app');
+IF SCHEMA_ID(N'reporting') IS NULL EXEC(N'CREATE SCHEMA reporting');
+IF SCHEMA_ID(N'ops')       IS NULL EXEC(N'CREATE SCHEMA ops');
+GO
+/* ---------- customers ---------- */
+CREATE TABLE app.customers
+(
+    customer_id   INT            IDENTITY(1,1) NOT NULL
+        CONSTRAINT pk_customers PRIMARY KEY,
+    email         NVARCHAR(255)  NOT NULL,
+    full_name     NVARCHAR(200)  NOT NULL,
+    country_code  CHAR(2)        NOT NULL,
+    created_at    DATETIME2(3)   NOT NULL
+        CONSTRAINT df_customers_created_at DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT uq_customers_email UNIQUE (email)
+);
+GO
+
+/* ---------- products (attributes jsonb → nvarchar(max) ISJSON) ---------- */
+CREATE TABLE app.products
+(
+    product_id   INT            IDENTITY(1,1) NOT NULL
+        CONSTRAINT pk_products PRIMARY KEY,
+    sku          VARCHAR(64)    NOT NULL,
+    name         NVARCHAR(200)  NOT NULL,
+    unit_price   DECIMAL(18,2)  NOT NULL,
+    attributes   NVARCHAR(MAX)  NULL,   -- эмуляция jsonb
+    created_at   DATETIME2(3)   NOT NULL
+        CONSTRAINT df_products_created_at DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT uq_products_sku UNIQUE (sku),
+    CONSTRAINT ck_products_attributes_json
+        CHECK (attributes IS NULL OR ISJSON(attributes) = 1),
+    CONSTRAINT ck_products_price_positive CHECK (unit_price >= 0)
+);
+GO
+
+/* Индекс по json-полю (вычисляемая колонка) */
+ALTER TABLE app.products
+    ADD attributes_sku AS JSON_VALUE(attributes, '$.sku') PERSISTED;
+GO
+CREATE INDEX ix_products_attributes_sku
+    ON app.products(attributes_sku);
+GO
+
+/* ---------- orders ---------- */
+CREATE TABLE app.orders
+(
+    order_id      BIGINT         IDENTITY(1,1) NOT NULL
+        CONSTRAINT pk_orders PRIMARY KEY,
+    customer_id   INT            NOT NULL,
+    status        VARCHAR(20)    NOT NULL,      -- pending|paid|shipped|cancelled
+    currency      CHAR(3)        NOT NULL
+        CONSTRAINT df_orders_currency DEFAULT 'USD',
+    total_amount  DECIMAL(18,2)  NOT NULL
+        CONSTRAINT df_orders_total DEFAULT (0),
+    placed_at     DATETIME2(3)   NOT NULL
+        CONSTRAINT df_orders_placed_at DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT fk_orders_customers
+        FOREIGN KEY (customer_id) REFERENCES app.customers(customer_id),
+    CONSTRAINT ck_orders_status
+        CHECK (status IN ('pending','paid','shipped','cancelled'))
+);
+GO
+CREATE INDEX ix_orders_customer_placed
+    ON app.orders(customer_id, placed_at DESC)
+    INCLUDE (status, total_amount);
+GO
+
+/* ---------- order_items ---------- */
+CREATE TABLE app.order_items
+(
+    order_item_id BIGINT         IDENTITY(1,1) NOT NULL
+        CONSTRAINT pk_order_items PRIMARY KEY,
+    order_id      BIGINT         NOT NULL,
+    product_id    INT            NOT NULL,
+    quantity      INT            NOT NULL,
+    unit_price    DECIMAL(18,2)  NOT NULL,
+    line_total    AS (CAST(quantity * unit_price AS DECIMAL(18,2))) PERSISTED,
+    CONSTRAINT fk_order_items_orders
+        FOREIGN KEY (order_id) REFERENCES app.orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_items_products
+        FOREIGN KEY (product_id) REFERENCES app.products(product_id),
+    CONSTRAINT ck_order_items_qty CHECK (quantity > 0)
+);
+GO
+CREATE INDEX ix_order_items_order  ON app.order_items(order_id);
+CREATE INDEX ix_order_items_product ON app.order_items(product_id);
+GO
+
+/* ---------- inventory ---------- */
+CREATE TABLE app.inventory
+(
+    product_id     INT          NOT NULL
+        CONSTRAINT pk_inventory PRIMARY KEY,
+    quantity_on_hand INT        NOT NULL
+        CONSTRAINT df_inventory_qty DEFAULT (0),
+    reserved       INT          NOT NULL
+        CONSTRAINT df_inventory_reserved DEFAULT (0),
+    updated_at     DATETIME2(3) NOT NULL
+        CONSTRAINT df_inventory_updated_at DEFAULT SYSUTCDATETIME(),
+    row_version    ROWVERSION   NOT NULL,
+    CONSTRAINT fk_inventory_products
+        FOREIGN KEY (product_id) REFERENCES app.products(product_id),
+    CONSTRAINT ck_inventory_nonneg
+        CHECK (quantity_on_hand >= 0 AND reserved >= 0
+               AND reserved <= quantity_on_hand)
+);
+GO
+
+/* ---------- outbox_messages ---------- */
+CREATE TABLE app.outbox_messages
+(
+    message_id     UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT pk_outbox PRIMARY KEY
+        CONSTRAINT df_outbox_id DEFAULT NEWSEQUENTIALID(),
+    aggregate_type NVARCHAR(64)  NOT NULL,
+    aggregate_id   NVARCHAR(64)  NOT NULL,
+    event_type     NVARCHAR(128) NOT NULL,
+    payload        NVARCHAR(MAX) NOT NULL,
+    occurred_at    DATETIME2(3)  NOT NULL
+        CONSTRAINT df_outbox_occurred DEFAULT SYSUTCDATETIME(),
+    processed_at   DATETIME2(3)  NULL,
+    attempts       INT           NOT NULL
+        CONSTRAINT df_outbox_attempts DEFAULT (0),
+    last_error     NVARCHAR(2000) NULL,
+    CONSTRAINT ck_outbox_payload_json CHECK (ISJSON(payload) = 1)
+);
+GO
+CREATE INDEX ix_outbox_unprocessed
+    ON app.outbox_messages(occurred_at)
+    WHERE processed_at IS NULL;
+GO
+CREATE OR ALTER FUNCTION reporting.get_customer_order_summary
+(
+    @customer_id INT
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT
+        c.customer_id,
+        c.email,
+        c.full_name,
+        COUNT(DISTINCT o.order_id)                                        AS orders_count,
+        ISNULL(SUM(o.total_amount), 0)                                    AS total_spent,
+        ISNULL(AVG(o.total_amount), 0)                                    AS avg_order_value,
+        MAX(o.placed_at)                                                  AS last_order_at,
+        SUM(CASE WHEN o.status = 'pending'   THEN 1 ELSE 0 END)           AS pending_orders,
+        SUM(CASE WHEN o.status = 'paid'      THEN 1 ELSE 0 END)           AS paid_orders,
+        SUM(CASE WHEN o.status = 'shipped'   THEN 1 ELSE 0 END)           AS shipped_orders,
+        SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END)           AS cancelled_orders
+    FROM app.customers c
+    LEFT JOIN app.orders o ON o.customer_id = c.customer_id
+    WHERE c.customer_id = @customer_id
+    GROUP BY c.customer_id, c.email, c.full_name
+);
+GO
+
+CREATE OR ALTER TRIGGER app.trg_order_items_recalc
+ON app.order_items
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    ;WITH affected AS (
+        SELECT order_id FROM inserted
+        UNION
+        SELECT order_id FROM deleted
+    )
+    UPDATE o
+       SET total_amount = ISNULL(x.sum_total, 0)
+    FROM app.orders o
+    JOIN affected a ON a.order_id = o.order_id
+    OUTER APPLY (
+        SELECT SUM(CAST(quantity * unit_price AS DECIMAL(18,2))) AS sum_total
+        FROM app.order_items oi
+        WHERE oi.order_id = o.order_id
+    ) x;
+END;
+GO
+CREATE OR ALTER PROCEDURE app.usp_create_order
+    @customer_id INT,
+    @items       app_order_items READONLY,
+    @order_id    BIGINT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    BEGIN TRAN;
+
+    IF NOT EXISTS (SELECT 1 FROM app.customers WHERE customer_id = @customer_id)
+        THROW 50001, N'Customer not found', 1;
+
+    INSERT INTO app.orders(customer_id, status)
+    VALUES (@customer_id, 'pending');
+
+    SET @order_id = SCOPE_IDENTITY();
+
+    INSERT INTO app.order_items(order_id, product_id, quantity, unit_price)
+    SELECT @order_id, i.product_id, i.quantity, p.unit_price
+    FROM @items i
+    JOIN app.products p ON p.product_id = i.product_id;
+
+    -- резерв остатков
+    UPDATE inv
+       SET reserved = inv.reserved + agg.qty,
+           updated_at = SYSUTCDATETIME()
+    FROM app.inventory inv
+    JOIN (SELECT product_id, SUM(quantity) qty
+          FROM @items GROUP BY product_id) agg
+        ON agg.product_id = inv.product_id;
+
+    INSERT INTO app.outbox_messages(aggregate_type, aggregate_id, event_type, payload)
+    SELECT N'Order', CAST(@order_id AS NVARCHAR(64)), N'OrderCreated',
+           (SELECT @order_id AS orderId, @customer_id AS customerId
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER);
+
+    COMMIT;
+END;
+GO
+
+/* табличный тип для позиций заказа */
+IF TYPE_ID(N'app_order_items') IS NULL
+    CREATE TYPE app_order_items AS TABLE
+    (
+        product_id INT NOT NULL,
+        quantity   INT NOT NULL
+    );
+GO
+SET NOCOUNT ON;
+GO
+
+/* customers */
+INSERT INTO app.customers(email, full_name, country_code) VALUES
+ (N'alice@example.com',  N'Alice Ivanova',  'RU'),
+ (N'bob@example.com',    N'Bob Petrov',     'KZ'),
+ (N'carol@example.com',  N'Carol Sidorova', 'BY'),
+ (N'dave@example.com',   N'Dave Kuznetsov', 'RU'),
+ (N'erin@example.com',   N'Erin Smirnova',  'AM');
+
+/* products */
+INSERT INTO app.products(sku, name, unit_price, attributes) VALUES
+ ('SKU-001', N'Mechanical Keyboard', 89.90, N'{"color":"black","switch":"red","sku":"KB-RED"}'),
+ ('SKU-002', N'Wireless Mouse',      29.50, N'{"color":"white","dpi":1600,"sku":"MS-WHT"}'),
+ ('SKU-003', N'27" Monitor',        249.00, N'{"panel":"IPS","hz":144,"sku":"MON-27"}'),
+ ('SKU-004', N'USB-C Hub',           45.00, N'{"ports":7,"sku":"HUB-7"}'),
+ ('SKU-005', N'Laptop Stand',        35.75, N'{"material":"aluminium","sku":"STD-ALU"}');
+
+/* inventory */
+INSERT INTO app.inventory(product_id, quantity_on_hand) VALUES
+ (1, 100), (2, 250), (3, 30), (4, 80), (5, 60);
+
+/* orders */
+INSERT INTO app.orders(customer_id, status, currency, placed_at) VALUES
+ (1, 'paid',      'USD', DATEADD(DAY, -10, SYSUTCDATETIME())),
+ (1, 'shipped',   'USD', DATEADD(DAY,  -5, SYSUTCDATETIME())),
+ (2, 'pending',   'USD', DATEADD(DAY,  -2, SYSUTCDATETIME())),
+ (3, 'cancelled', 'USD', DATEADD(DAY,  -8, SYSUTCDATETIME())),
+ (4, 'paid',      'USD', DATEADD(DAY,  -1, SYSUTCDATETIME())),
+ (5, 'pending',   'USD', SYSUTCDATETIME());
+
+/* order_items (триггер сам пересчитает total_amount) */
+INSERT INTO app.order_items(order_id, product_id, quantity, unit_price) VALUES
+ (1, 1, 1, 89.90),
+ (1, 2, 1, 29.50),
+ (2, 3, 1, 249.00),
+ (3, 4, 2, 45.00),
+ (4, 5, 1, 35.75),
+ (5, 1, 2, 89.90),
+ (6, 2, 3, 29.50);
+GO
+
+-- затем: создать схему, таблицы, функцию, сид (всё из разделов 1–6)
+-- 1. Все заказы клиента 1
+SELECT * FROM reporting.get_customer_order_summary(1);
+
+-- 2. Сумма по заказу совпадает с суммой позиций
+SELECT o.order_id, o.total_amount, SUM(oi.line_total) AS calc
+FROM app.orders o
+JOIN app.order_items oi ON oi.order_id = o.order_id
+GROUP BY o.order_id, o.total_amount
+HAVING o.total_amount <> SUM(oi.line_total);
+
+-- 3. Outbox пуст после сида (должен быть пуст, т.к. сид не создавал заказов через процедуру)
+SELECT COUNT(*) AS pending_outbox FROM app.outbox_messages WHERE processed_at IS NULL;
