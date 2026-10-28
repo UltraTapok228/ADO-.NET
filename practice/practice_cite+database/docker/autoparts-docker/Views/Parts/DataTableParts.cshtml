@@ -1,0 +1,16 @@
+@using System.Data
+@model DataTable
+@{ ViewData["Title"] = "Данные (DataTable)"; }
+
+<h1>Данные из DataTable / DataAdapter</h1>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        @foreach (DataColumn col in Model.Columns) { <th>@col.ColumnName</th> }
+    </tr>
+    @foreach (DataRow row in Model.Rows) {
+        <tr>
+            @foreach (var item in row.ItemArray) { <td>@item</td> }
+        </tr>
+    }
+</table>
+<p><a asp-action="Index">← Назад к каталогу</a></p>

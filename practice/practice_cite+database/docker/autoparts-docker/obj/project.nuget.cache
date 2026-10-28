@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tghnA1RQ14U=",
+  "dgSpecHash": "C0joOuT6/vE=",
   "success": true,
-  "projectFilePath": "C:\\BD\\docker\\autoparts-docker\\AutoPartsApp.csproj",
+  "projectFilePath": "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\AutoPartsApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",

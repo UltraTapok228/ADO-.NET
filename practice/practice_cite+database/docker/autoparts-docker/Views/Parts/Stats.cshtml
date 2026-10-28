@@ -1,0 +1,16 @@
+@model (int totalParts, decimal totalValue, decimal avgPrice)
+@{ ViewData["Title"] = "Статистика склада"; }
+
+<h1>Статистика по складу</h1>
+<div style="display: flex; gap: 20px;">
+    <div style="border: 1px solid #ccc; padding: 20px; text-align: center;">
+        <h3>@Model.totalParts</h3><p>Уникальных позиций</p>
+    </div>
+    <div style="border: 1px solid #ccc; padding: 20px; text-align: center;">
+        <h3>@Model.totalValue.ToString("C")</h3><p>Товара на сумму</p>
+    </div>
+    <div style="border: 1px solid #ccc; padding: 20px; text-align: center;">
+        <h3>@Model.avgPrice.ToString("C")</h3><p>Средняя цена</p>
+    </div>
+</div>
+<p><a asp-action="Index">← Назад к каталогу</a></p>

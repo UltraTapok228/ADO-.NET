@@ -1,0 +1,13 @@
+@{ ViewData["Title"] = "Массовый завоз товара"; var message = TempData["Message"] as string;}
+
+<h1>Массовый завоз товара</h1>
+@if (!string.IsNullOrEmpty(message)) {
+    <div style="padding:10px; background:#ffebeb; border:1px solid #f33; margin:10px 0;">@message</div>
+}
+
+<form asp-action="Restock" method="post">
+    <p>Введите данные в формате <b>Id:Количество</b> через запятую. Например: <i>1:50, 2:10, 5:100</i></p>
+    <textarea name="itemsText" rows="4" style="width: 100%; max-width: 400px;"></textarea><br/><br/>
+    <button type="submit">Оформить завоз</button>
+    <a asp-action="Index">Отмена</a>
+</form>

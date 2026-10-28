@@ -1,39 +1,43 @@
 @model List<AutoPartsApp.Models.Part>
-@{
-    ViewData["Title"] = "Каталог автозапчастей";
-    var message = TempData["Message"] as string;
-}
+@{ ViewData["Title"] = "Каталог автозапчастей"; var message = TempData["Message"] as string; }
 
 <h1>Каталог автозапчастей</h1>
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <div style="padding:10px; background:#e7f5e7; border:1px solid #3c3; margin:10px 0;">
-        @message
-    </div>
+@if (!string.IsNullOrEmpty(message)) {
+    <div style="padding:10px; background:#e7f5e7; border:1px solid #3c3; margin:10px 0;">@message</div>
 }
 
-<p><a asp-action="Create">+ Добавить запчасть</a></p>
+<div style="margin-bottom: 20px;">
+    <form asp-action="Search" method="get" style="display:inline-block; margin-right: 20px;">
+        <input type="text" name="query" value="@ViewData["SearchQuery"]" placeholder="Поиск по названию/артикулу..." style="width: 250px;"/>
+        <button type="submit">Искать</button>
+    </form>
+    <a asp-action="Create">+ Добавить запчасть</a> |
+    <a asp-action="Stats">📊 Статистика склада</a> |
+    <a asp-action="Restock">📦 Завоз товара</a> |
+    | <a asp-action="RawParts">⚙️ DataReader (сырой)</a> |
+    <a asp-action="DataTableParts">📋 DataTable</a> |
+    <a asp-action="PoolTest" target="_blank">⏳ Тест пула (20 запросов)</a>
+</div>
 
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
-        <th>Id</th><th>Название</th><th>Артикул</th><th>Производитель</th>
-        <th>Цена</th><th>Остаток</th><th></th>
+        <th>Id</th><th>Название</th><th>Артикул</th><th>Производитель</th><th>Цена</th><th>Остаток</th><th>Действия</th>
     </tr>
-    @foreach (var p in Model)
-    {
+    @foreach (var p in Model) {
         <tr>
-            <td>@p.Id</td>
-            <td><a asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
-            <td>@p.Article</td>
-            <td>@p.Manufacturer</td>
-            <td>@p.Price.ToString("C")</td>
-            <td>@p.Stock</td>
+            <td>@p.Id</td><td><a asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+            <td>@p.Article</td><td>@p.Manufacturer</td><td>@p.Price.ToString("C")</td><td>@p.Stock</td>
             <td>
                 <form asp-action="Buy" method="post" style="display:inline;">
                     <input type="hidden" name="id" value="@p.Id" />
                     <input type="number" name="quantity" value="1" min="1" max="@p.Stock" style="width:50px;" />
                     <button type="submit" @(p.Stock == 0 ? "disabled" : "")>Купить</button>
+                </form>
+                <form asp-action="Delete" method="post" style="display:inline;" onsubmit="return confirm('Точно удалить?');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@p.Id" />
+                    <button type="submit" style="color:red;">Удалить</button>
                 </form>
             </td>
         </tr>

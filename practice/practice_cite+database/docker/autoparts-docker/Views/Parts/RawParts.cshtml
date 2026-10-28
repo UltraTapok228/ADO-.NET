@@ -1,0 +1,17 @@
+@model List<Dictionary<string, object?>>
+@{ ViewData["Title"] = "Сырые данные (DataReader)"; }
+
+<h1>Сырые данные из DataReader</h1>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        @if (Model.Any()) {
+            foreach (var key in Model.First().Keys) { <th>@key</th> }
+        }
+    </tr>
+    @foreach (var row in Model) {
+        <tr>
+            @foreach (var val in row.Values) { <td>@val</td> }
+        </tr>
+    }
+</table>
+<p><a asp-action="Index">← Назад к каталогу</a></p>

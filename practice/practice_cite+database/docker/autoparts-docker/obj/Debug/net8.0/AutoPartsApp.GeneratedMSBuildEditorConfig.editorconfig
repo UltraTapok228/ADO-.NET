@@ -12,25 +12,45 @@ build_property.EntryPointFilePath =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AutoPartsApp
 build_property.RootNamespace = AutoPartsApp
-build_property.ProjectDir = C:\BD\docker\autoparts-docker\
+build_property.ProjectDir = C:\Users\Auslander\Desktop\ADO-.NET\practice\practice_cite+database\docker\autoparts-docker\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\BD\docker\autoparts-docker
+build_property.MSBuildProjectDirectory = C:\Users\Auslander\Desktop\ADO-.NET\practice\practice_cite+database\docker\autoparts-docker
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/BD/docker/autoparts-docker/Views/Parts/Create.cshtml]
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BD/docker/autoparts-docker/Views/Parts/Details.cshtml]
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/DataTableParts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcRGF0YVRhYmxlUGFydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BD/docker/autoparts-docker/Views/Parts/Index.cshtml]
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/RawParts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcUmF3UGFydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/Restock.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcUmVzdG9jay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/Parts/Stats.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFydHNcU3RhdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Auslander/Desktop/ADO-.NET/practice/practice_cite+database/docker/autoparts-docker/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

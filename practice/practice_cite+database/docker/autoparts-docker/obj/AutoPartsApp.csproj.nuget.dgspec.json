@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\BD\\docker\\autoparts-docker\\AutoPartsApp.csproj": {}
+    "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\AutoPartsApp.csproj": {}
   },
   "projects": {
-    "C:\\BD\\docker\\autoparts-docker\\AutoPartsApp.csproj": {
+    "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\AutoPartsApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\BD\\docker\\autoparts-docker\\AutoPartsApp.csproj",
+        "projectUniqueName": "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\AutoPartsApp.csproj",
         "projectName": "AutoPartsApp",
-        "projectPath": "C:\\BD\\docker\\autoparts-docker\\AutoPartsApp.csproj",
+        "projectPath": "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\AutoPartsApp.csproj",
         "packagesPath": "C:\\Users\\Auslander\\.nuget\\packages\\",
-        "outputPath": "C:\\BD\\docker\\autoparts-docker\\obj\\",
+        "outputPath": "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_cite+database\\docker\\autoparts-docker\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Auslander\\AppData\\Roaming\\NuGet\\NuGet.Config"
