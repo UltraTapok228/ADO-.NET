@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS visits (
+    id SERIAL PRIMARY KEY,
+    path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO visits (path) VALUES ('/init');
