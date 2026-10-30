@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "dgSpecHash": "kaYDgBajd+g=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Auslander\\Desktop\\ADO-.NET\\practice\\practice_dapper\\TaskTracker\\TaskTracker.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Auslander\\.nuget\\packages\\dapper\\2.1.35\\dapper.2.1.35.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.configuration.fileextensions\\8.0.0\\microsoft.extensions.configuration.fileextensions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.configuration.json\\8.0.0\\microsoft.extensions.configuration.json.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0\\microsoft.extensions.fileproviders.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\8.0.0\\microsoft.extensions.fileproviders.physical.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\8.0.0\\microsoft.extensions.filesystemglobbing.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\npgsql\\8.0.3\\npgsql.8.0.3.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.32\\microsoft.netcore.app.ref.8.0.32.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.32\\microsoft.windowsdesktop.app.ref.8.0.32.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.32\\microsoft.aspnetcore.app.ref.8.0.32.nupkg.sha512",
+    "C:\\Users\\Auslander\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.32\\microsoft.netcore.app.host.win-x64.8.0.32.nupkg.sha512"
+  ],
+  "logs": []
+}

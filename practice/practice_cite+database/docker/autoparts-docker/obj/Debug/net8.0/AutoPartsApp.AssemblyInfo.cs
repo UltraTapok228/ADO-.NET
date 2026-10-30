@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoPartsApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71f977b2f63d6ae26f1465566a6325d0297da136")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d5b700693584e68128a94be4b9f6f5a6d534e79a")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoPartsApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoPartsApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
